@@ -41,3 +41,13 @@ Output: a CSV with the project accession as a name and two columns:
     }}
 
 """
+
+def get_xml(accession):
+    """
+    Return an XML tree object
+    for a given ENA accession.
+    """
+    base_url = "https://www.ebi.ac.uk/ena/browser/api/xml/"
+    response = requests.get(f"{base_url}{accession}")
+    assert response.status_code == 200, f"[ERROR]: Unable to access experiment data in {base_url}{accession}"
+    return ET.fromstring(response.text)

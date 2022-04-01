@@ -1,3 +1,6 @@
+import requests
+import sys
+import xml.etree.ElementTree as ET
 """
 Input: ENA project accession
 Output: a CSV with the project accession as a name and two columns: 
@@ -41,6 +44,11 @@ Output: a CSV with the project accession as a name and two columns:
     }}
 
 """
+def get_all_runs(project_accession):
+    project_tree = get_xml(project_accession)
+    project_runs = get_runs_in_project(project_tree)
+    #project_runs_and_submitter_ids = get_submitters_id(project_runs)
+    #save_to_csv(project_runs_and_submitter_ids)
 
 def get_xml(accession):
     """
@@ -51,3 +59,28 @@ def get_xml(accession):
     response = requests.get(f"{base_url}{accession}")
     assert response.status_code == 200, f"[ERROR]: Unable to access experiment data in {base_url}{accession}"
     return ET.fromstring(response.text)
+
+def get_runs_in_project(project_tree):
+    """
+    Return the value for a given tag from the ENA experiment XML.
+    """
+    runs_url = get_url_submitted_files(project_tree)
+    print(runs_url)
+    #return get_runs_in_table(runs_url)
+
+def get_url_submitted_files(project_tree):
+    """
+    Return an URL pointing to a table with 
+    all the ENA run accessions and raw reads files submitted
+    in a project.
+    """
+    link_list = project_tree.find("PROJECT").findall("PROJECT_LINKS/PROJECT_LINK")
+    for item in link_list:
+        db = item.find("XREF_LINK/DB").text
+        if db == "ENA-SUBMITTED-FILES":
+            return item.find("XREF_LINK/ID").text
+
+
+get_all_runs("PRJNA693894")
+
+

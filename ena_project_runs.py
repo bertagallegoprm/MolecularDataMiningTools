@@ -1,6 +1,9 @@
 import requests
 import sys
 import xml.etree.ElementTree as ET
+import pandas as pd
+import io
+import re
 """
 Input: ENA project accession
 Output: a CSV with the project accession as a name and two columns: 
@@ -46,8 +49,8 @@ Output: a CSV with the project accession as a name and two columns:
 """
 def get_all_runs(project_accession):
     project_tree = get_xml(project_accession)
-    project_runs = get_runs_in_project(project_tree)
-    print(project_runs)
+    runs_url = get_url_submitted_files(project_tree)
+    runs_list =  get_runs_in_table(runs_url)
     #project_runs_and_submitter_ids = get_submitters_id(project_runs)
     #save_to_csv(project_runs_and_submitter_ids)
 
@@ -60,14 +63,6 @@ def get_xml(accession):
     response = requests.get(f"{base_url}{accession}")
     assert response.status_code == 200, f"[ERROR]: Unable to access {base_url}{accession}"
     return ET.fromstring(response.text)
-
-def get_runs_in_project(project_tree):
-    """
-    Return the value for a given tag from the ENA experiment XML.
-    """
-    runs_url = get_url_submitted_files(project_tree)
-    print(runs_url)
-    return get_runs_in_table(runs_url)
 
 def get_url_submitted_files(project_tree):
     """
@@ -84,7 +79,8 @@ def get_url_submitted_files(project_tree):
 def get_runs_in_table(url):
     response = requests.get(f"{url}")
     assert response.status_code == 200, f"[ERROR]: Unable to access {url}"
-    return response.text
+    raw_data = response.content.decode("utf/8")
+    return re.split("\t\t\t\t\n", raw_data.strip())   
 
 get_all_runs("PRJNA693894")
 

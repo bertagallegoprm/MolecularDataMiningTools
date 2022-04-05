@@ -1,8 +1,6 @@
 import requests
 import sys
 import xml.etree.ElementTree as ET
-import pandas as pd
-import io
 import re
 import csv
 """
@@ -58,8 +56,7 @@ def get_all_runs(project_accession):
     for run_accession in runs_list[:5]:
         submitters_id = get_submitters_id(run_accession)
         accessions["runs"][run_accession] = submitters_id
-    print(accessions)
-    #save_to_csv(accessions)
+    save_to_csv(accessions)
 
 def get_xml(accession):
     """
@@ -95,6 +92,15 @@ def get_submitters_id(run_accession):
     run_tree = get_xml(run_accession)
     return run_tree.find("RUN/EXPERIMENT_REF/IDENTIFIERS/SUBMITTER_ID").text
 
+def save_to_csv(accessions):
+    project = accessions["project"]
+    headers = ["run_accession", "submitters_id"]
+    with open(f"{project}_accessions.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for data in accessions["runs"].items():
+            writer.writerow(data)
+        f.close()
 
 get_all_runs("PRJNA693894")
 

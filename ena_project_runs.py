@@ -51,6 +51,8 @@ def get_all_runs(project_accession):
     project_tree = get_xml(project_accession)
     runs_url = get_url_submitted_files(project_tree)
     runs_list =  get_runs_in_table(runs_url)
+    for run_id in runs_list:
+        submitters_id = get_submitters_id(run_id)
     #project_runs_and_submitter_ids = get_submitters_id(project_runs)
     #save_to_csv(project_runs_and_submitter_ids)
 
@@ -80,7 +82,14 @@ def get_runs_in_table(url):
     response = requests.get(f"{url}")
     assert response.status_code == 200, f"[ERROR]: Unable to access {url}"
     raw_data = response.content.decode("utf/8")
-    return re.split("\t\t\t\t\n", raw_data.strip())   
+    # delete first line with headers
+    raw_data = re.sub(r"^.*\n", "", raw_data)
+    return re.split("\t\t\t\t\n", raw_data.strip())
+
+def get_submitters_id(run_accession):
+    run_tree = get_xml(run_accession)
+    return run_tree.find("RUN/EXPERIMENT_REF/IDENTIFIERS/SUBMITTER_ID").text
+
 
 get_all_runs("PRJNA693894")
 

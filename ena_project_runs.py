@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import io
 import re
+import csv
 """
 Input: ENA project accession
 Output: a CSV with the project accession as a name and two columns: 
@@ -51,10 +52,14 @@ def get_all_runs(project_accession):
     project_tree = get_xml(project_accession)
     runs_url = get_url_submitted_files(project_tree)
     runs_list =  get_runs_in_table(runs_url)
-    for run_id in runs_list:
-        submitters_id = get_submitters_id(run_id)
-    #project_runs_and_submitter_ids = get_submitters_id(project_runs)
-    #save_to_csv(project_runs_and_submitter_ids)
+    accessions = {}
+    accessions["project"] = project_accession
+    accessions["runs"] = {}
+    for run_accession in runs_list[:5]:
+        submitters_id = get_submitters_id(run_accession)
+        accessions["runs"][run_accession] = submitters_id
+    print(accessions)
+    #save_to_csv(accessions)
 
 def get_xml(accession):
     """

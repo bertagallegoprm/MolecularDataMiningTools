@@ -47,6 +47,7 @@ Output: a CSV with the project accession as a name and two columns:
 def get_all_runs(project_accession):
     project_tree = get_xml(project_accession)
     project_runs = get_runs_in_project(project_tree)
+    print(project_runs)
     #project_runs_and_submitter_ids = get_submitters_id(project_runs)
     #save_to_csv(project_runs_and_submitter_ids)
 
@@ -57,7 +58,7 @@ def get_xml(accession):
     """
     base_url = "https://www.ebi.ac.uk/ena/browser/api/xml/"
     response = requests.get(f"{base_url}{accession}")
-    assert response.status_code == 200, f"[ERROR]: Unable to access experiment data in {base_url}{accession}"
+    assert response.status_code == 200, f"[ERROR]: Unable to access {base_url}{accession}"
     return ET.fromstring(response.text)
 
 def get_runs_in_project(project_tree):
@@ -66,7 +67,7 @@ def get_runs_in_project(project_tree):
     """
     runs_url = get_url_submitted_files(project_tree)
     print(runs_url)
-    #return get_runs_in_table(runs_url)
+    return get_runs_in_table(runs_url)
 
 def get_url_submitted_files(project_tree):
     """
@@ -80,6 +81,10 @@ def get_url_submitted_files(project_tree):
         if db == "ENA-SUBMITTED-FILES":
             return item.find("XREF_LINK/ID").text
 
+def get_runs_in_table(url):
+    response = requests.get(f"{url}")
+    assert response.status_code == 200, f"[ERROR]: Unable to access {url}"
+    return response.text
 
 get_all_runs("PRJNA693894")
 

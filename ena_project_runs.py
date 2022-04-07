@@ -3,6 +3,7 @@ import sys
 import xml.etree.ElementTree as ET
 import re
 import csv
+import argparse
 
 def get_all_runs(project_accession):
     """
@@ -65,6 +66,10 @@ def save_to_csv(accessions):
             writer.writerow(data)
         f.close()
 
-get_all_runs("PRJNA693894")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog = "Get INSDC run accessions and submitters Ids given a project accession", usage = "python3 ena_project_runs.py -p <project accession>")
+    parser.add_argument("-p", "--project", type=str,  help = "INSDC project accession (e.g. PRJNA693894")
+    args = parser.parse_args()
+    get_all_runs(args.project)
 
 

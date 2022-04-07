@@ -11,16 +11,20 @@ def get_all_runs(project_accession):
     return a CSV with the run accessions and their
     correspondint submitters Id.
     """
+    print(f"Getting run accessions from {project_accession}...")
     project_tree = get_xml(project_accession)
     runs_url = get_url_submitted_files(project_tree)
     runs_list =  get_runs_in_table(runs_url)
     accessions = {}
     accessions["project"] = project_accession
     accessions["runs"] = {}
+    print("Getting submitters Ids from run accessions...")
     for run_accession in runs_list:
         submitters_id = get_submitters_id(run_accession)
         accessions["runs"][run_accession] = submitters_id
     save_to_csv(accessions)
+    print(f"Find results in {project_accession}_accessions.csv")
+    print("End.")
 
 def get_xml(accession):
     """

@@ -40,9 +40,14 @@ def get_xml(accession):
     for a given ENA accession.
     """
     base_url = "https://www.ebi.ac.uk/ena/browser/api/xml/"
-    response = requests.get(f"{base_url}{accession}")
-    assert response.status_code == 200, f"[ERROR]: Unable to access {base_url}{accession}"
-    return ET.fromstring(response.text)
+    try:
+        response = requests.get(f"{base_url}{accession}")
+        return ET.fromstring(response.text)
+    except:
+        if response.status_code != 200:
+            print(f"[WARNING]: Unable to access {base_url}{accession}")
+        return None
+
 
 def get_url_submitted_files(project_tree):
     """
@@ -76,8 +81,12 @@ def get_submitters_id(run_accession):
     Return the submitters ID in the run XML
     given a run accession.
     """
-    run_tree = get_xml(run_accession)
-    return run_tree.find("RUN/EXPERIMENT_REF/IDENTIFIERS/SUBMITTER_ID").text
+    try:
+        run_tree = get_xml(run_accession)
+        return run_tree.find("RUN/EXPERIMENT_REF/IDENTIFIERS/SUBMITTER_ID").text
+    except:
+        print(f"[WARNING]: Unable to access data for {run_accession}")
+        return None
 
 def save_to_csv(accessions):
     """
